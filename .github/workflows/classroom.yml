@@ -1,0 +1,112 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Test11-1
+      id: test11-1
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Test11-1
+        setup-command: "/bin/bash test11.sh 1"
+        command: cat Test/output1.txt
+        input: ''
+        expected-output: |-
+          === Test 1 ===
+          Create p1 : Jack
+          After move, p1 is empty
+          Create p2 : Jack
+          Create p3 : Kim
+          Delete Student Kim
+          After move, p2 is empty
+          After move, p3 : Jack
+          Delete Student Jack
+          After p3 reset, p3 : Lee
+          p3 release ownership
+          raw pointer: Lee
+          Delete Student Lee
+        comparison-method: contains
+        timeout: 10
+    - name: Test11-2
+      id: test11-2
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Test11-2
+        setup-command: "/bin/bash test11.sh 2"
+        command: cat Test/output2.txt
+        input: ''
+        expected-output: |-
+          === Test 2 ===
+          p1 use_count: 1
+          After copy, p1 use_count: 2
+          After copy, p1 use_count: 3
+          After p3 goes out of scope, p1 use_count: 2
+          After p2 reset, p1 use_count: 1:Jack
+          After p2 reset, p2 use_count: 1:Kim
+          Delete Student Kim
+          Delete Student Jack
+          After p1 reset, p1 use_count: 1
+          After p1 reset, p1 is nullptr
+        comparison-method: contains
+        timeout: 10
+    - name: Test11-3
+      id: test11-3
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Test11-3
+        setup-command: "/bin/bash test11.sh 3"
+        command: cat Test/output3.txt
+        input: ''
+        expected-output: |-
+          === Test 3 ===
+          -------------------------------------------------------------
+          Knight + Armor + Boots + Sword | Attack: 25 | Speed: 11 | Defense: 30
+          Knight + Armor + Bow | Attack: 22 | Speed: 8 | Defense: 30
+          Knight + Boots + Staff | Attack: 23 | Speed: 13 | Defense: 20
+          -------------------------------------------------------------
+          Wizard + Armor + Boots + Sword | Attack: 30 | Speed: 13 | Defense: 20
+          Wizard + Armor + Bow | Attack: 27 | Speed: 10 | Defense: 20
+          Wizard + Boots + Staff | Attack: 28 | Speed: 15 | Defense: 10
+          -------------------------------------------------------------
+          Archer + Armor + Boots + Sword | Attack: 28 | Speed: 18 | Defense: 18
+          Archer + Armor + Bow | Attack: 25 | Speed: 15 | Defense: 18
+          Archer + Boots + Staff | Attack: 26 | Speed: 20 | Defense: 8
+          -------------------------------------------------------------
+          Zombie + Armor + Boots + Sword | Attack: 25 | Speed: 8 | Defense: 30
+          Zombie + Armor + Bow | Attack: 22 | Speed: 5 | Defense: 30
+          Zombie + Boots + Staff | Attack: 23 | Speed: 10 | Defense: 20
+          -------------------------------------------------------------
+          Skeleton + Armor + Boots + Sword | Attack: 20 | Speed: 18 | Defense: 20
+          Skeleton + Armor + Bow | Attack: 17 | Speed: 15 | Defense: 20
+          Skeleton + Boots + Staff | Attack: 18 | Speed: 20 | Defense: 10
+          -------------------------------------------------------------
+          Lich + Armor + Boots + Sword | Attack: 35 | Speed: 15 | Defense: 28
+          Lich + Armor + Bow | Attack: 32 | Speed: 12 | Defense: 28
+          Lich + Boots + Staff | Attack: 33 | Speed: 17 | Defense: 18
+          -------------------------------------------------------------
+          Delete Character: Knight
+          Delete Character: Wizard
+          Delete Character: Archer
+          Delete Character: Zombie
+          Delete Character: Skeleton
+          Delete Character: Lich
+        comparison-method: contains
+        timeout: 10
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        TEST11-1_RESULTS: "${{steps.test11-1.outputs.result}}"
+        TEST11-2_RESULTS: "${{steps.test11-2.outputs.result}}"
+        TEST11-3_RESULTS: "${{steps.test11-3.outputs.result}}"
+      with:
+        runners: test11-1,test11-2,test11-3
